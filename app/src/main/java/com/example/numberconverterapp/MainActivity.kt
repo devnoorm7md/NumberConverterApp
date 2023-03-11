@@ -1,15 +1,13 @@
 package com.example.numberconverterapp
 
-import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import androidx.core.content.ContextCompat
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,7 +17,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var editTextOctal: EditText
     private lateinit var editTextHex: EditText
     private lateinit var buttonClear: Button
-    private var focusedViewId:Int = 0
+    private var focusedView: EditText? = null
+    private var textWatcher: TextWatcher? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +26,7 @@ class MainActivity : AppCompatActivity() {
 
         initViews()
         addCallBacks()
+        initListeners()
 
     }
 
@@ -38,23 +38,27 @@ class MainActivity : AppCompatActivity() {
         buttonClear = findViewById(R.id.button_clear)
     }
 
+    private fun initListeners() {
+        editTextDecimal.onFocusChangeListener = CustomFocusChangeListener()
+        editTextBinary.onFocusChangeListener = CustomFocusChangeListener()
+        editTextOctal.onFocusChangeListener = CustomFocusChangeListener()
+        editTextHex.onFocusChangeListener = CustomFocusChangeListener()
+    }
+
+
     private fun addCallBacks() {
 
-        val textWatcher = object: TextWatcher{
+        textWatcher = object : TextWatcher {
 
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
             }
 
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                val number = p0.toString().trim()
-                if (number.isNotEmpty()){
-                    convertNumberBases(focusedViewId,number)
-                }
-                else {
-                    clearEditTextsWhenNoInput(focusedViewId)
-                    }
-                }
+            override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                val number = s.toString().trim()
+                focusedView?.let { convertNumberBases(it, number) }
+
+            }
 
 
             override fun afterTextChanged(p0: Editable?) {
@@ -63,71 +67,63 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        val views = listOf(editTextDecimal, editTextBinary, editTextOctal, editTextHex)
-        views.forEach {
-            it.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
-                if (hasFocus) {
-                    focusedViewId = view.id
-                    it.addTextChangedListener(textWatcher)
-                    onFocusedViewDrawable(view)
-                } else {
-                    it.removeTextChangedListener(textWatcher)
-                    onRemoveFocusedViewDrawable(view)
-                }
-            }
-        }
-
         buttonClear.setOnClickListener {
-            clearEditTexts(editTextDecimal,editTextBinary,editTextOctal,editTextHex)
+            clearFields()
         }
 
     }
 
-    private fun clearEditTexts(vararg editTexts: EditText) {
-        for (editText in editTexts) {
-            editText.setText("")
+    private fun convertToDecimal(number: String, base: Int): String {
+        if (number.isEmpty()) {
+            return ""
         }
+        return number.toIntOrNull(base)?.toString() ?: ""
     }
 
-    private fun clearEditTextsWhenNoInput(viewId: Int) {
-        when (viewId) {
-            R.id.edit_text_decimal -> clearEditTexts(editTextBinary, editTextOctal, editTextHex)
-            R.id.edit_text_binary -> clearEditTexts(editTextDecimal, editTextOctal, editTextHex)
-            R.id.edit_text_octal -> clearEditTexts(editTextDecimal, editTextBinary, editTextHex)
-            R.id.edit_text_hex -> clearEditTexts(editTextDecimal, editTextBinary, editTextOctal)
-        }
+    private fun convertFromDecimal(number: String, base: Int): String {
+        return number.toInt().toString(base)
     }
 
-    private fun convertNumberBases(viewId: Int, number: String) {
+    private fun convertNumberBases(view: EditText, number: String) {
         try {
-            val value = when (viewId) {
-                R.id.edit_text_decimal -> number.toInt()
-                R.id.edit_text_binary -> number.toInt(2)
-                R.id.edit_text_octal -> number.toInt(8)
-                else -> number.toInt(16)
+            val value = when (view.id) {
+                R.id.edit_text_decimal -> convertToDecimal(number, 10)
+                R.id.edit_text_binary -> convertToDecimal(number, 2)
+                R.id.edit_text_octal -> convertToDecimal(number, 8)
+                else -> convertToDecimal(number, 16)
             }
 
-            editTextDecimal.takeIf { it.id != viewId }?.setText(value.toString())
-            editTextBinary.takeIf { it.id != viewId }?.setText(Integer.toBinaryString(value))
-            editTextOctal.takeIf { it.id != viewId }?.setText(Integer.toOctalString(value))
-            editTextHex.takeIf { it.id != viewId }?.setText(Integer.toHexString(value))
+            editTextDecimal.takeIf { it.id != view.id }?.setText(convertFromDecimal(value, 10))
+            editTextBinary.takeIf { it.id != view.id }?.setText(convertFromDecimal(value, 2))
+            editTextOctal.takeIf { it.id != view.id }?.setText(convertFromDecimal(value, 8))
+            editTextHex.takeIf { it.id != view.id }?.setText(convertFromDecimal(value, 16))
 
+        } catch (e: NumberFormatException) {
+            Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
-            e.printStackTrace()
+            Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
         }
     }
 
-    // Dynamic Drawable Design
-    private fun onFocusedViewDrawable(view: View){
-        val gradientDrawable = GradientDrawable(GradientDrawable.Orientation.TL_BR,intArrayOf(Color.WHITE,Color.WHITE))
-        gradientDrawable.shape = GradientDrawable.RECTANGLE
-        gradientDrawable.cornerRadius = 16F
-        gradientDrawable.setStroke(8,ContextCompat.getColor(this, android.R.color.holo_orange_light))
-        view.background = gradientDrawable
+    private fun clearFields() {
+
+        editTextDecimal.setText("")
+        editTextBinary.setText("")
+        editTextOctal.setText("")
+        editTextHex.setText("")
+
     }
 
-    private fun onRemoveFocusedViewDrawable(view: View){
-        view.background = ContextCompat.getDrawable(this,R.drawable.edit_text_background)
-    }
+    inner class CustomFocusChangeListener : View.OnFocusChangeListener {
+        override fun onFocusChange(view: View?, hasFocus: Boolean) {
 
+            if (hasFocus) {
+                focusedView = view as EditText
+                focusedView!!.addTextChangedListener(textWatcher)
+            } else {
+                focusedView!!.removeTextChangedListener(textWatcher)
+            }
+        }
+
+    }
 }

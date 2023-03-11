@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".MainActivity">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <FrameLayout
+                    android:id="@+id/frameLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:background="@color/brand" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:fontFamily="@font/lato_bold"
+                        android:text="@string/app_tittle_name"
+                        android:textAllCaps="true"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/sizeTextTittle" />
+                </FrameLayout>
+
+                <EditText
+                    android:id="@+id/edit_text_decimal"
+                    style="@style/edit_text_style"
+                    android:layout_marginTop="72dp"
+                    android:background="@drawable/edit_text_background"
+                    android:digits="0123456789"
+                    android:drawableStart="@drawable/decimal_drawable"
+                    android:inputType="number"
+                    android:maxLength="9"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
+
+                <EditText
+                    android:id="@+id/edit_text_binary"
+                    style="@style/edit_text_style"
+                    android:layout_marginTop="24dp"
+                    android:background="@drawable/edit_text_background"
+                    android:digits="01"
+                    android:drawableStart="@drawable/binary_drawable"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/edit_text_decimal" />
+
+                <EditText
+                    android:id="@+id/edit_text_octal"
+                    style="@style/edit_text_style"
+                    android:layout_marginTop="24dp"
+                    android:background="@drawable/edit_text_background"
+                    android:digits="01234567"
+                    android:drawableStart="@drawable/octal_drawable"
+                    android:inputType="number"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/edit_text_binary" />
+
+                <EditText
+                    android:id="@+id/edit_text_hex"
+                    style="@style/edit_text_style"
+                    android:layout_marginTop="24dp"
+                    android:background="@drawable/edit_text_background"
+                    android:digits="0123456789abcdefABCDEF"
+                    android:drawableStart="@drawable/hex_drawable"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/edit_text_octal" />
+
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/button_clear"
+                    style="@style/button_style"
+                    android:layout_width="130dp"
+                    android:layout_height="@dimen/buttonHeight"
+                    android:layout_marginTop="24dp"
+                    android:text="@string/clear"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/edit_text_hex" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
+</ScrollView>

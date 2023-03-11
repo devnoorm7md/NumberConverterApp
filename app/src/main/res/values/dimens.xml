@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="sizeTextTittle">18sp</dimen>
+    <dimen name="paddingNormal">16dp</dimen>
+    <dimen name="normal_text_size">12sp</dimen>
+    <dimen name="margin_end">20dp</dimen>
+    <dimen name="margin_top">98dp</dimen>
+    <dimen name="margin_start">20dp</dimen>
+    <dimen name="textButton">16sp</dimen>
+    <dimen name="buttonWidth">65dp</dimen>
+    <dimen name="buttonHeight">55dp</dimen>
+</resources>

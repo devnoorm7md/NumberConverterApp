@@ -87,16 +87,16 @@ class MainActivity : AppCompatActivity() {
     private fun convertNumberBases(view: EditText, number: String) {
         try {
             val value = when (view.id) {
-                R.id.edit_text_decimal -> convertToDecimal(number, 10)
-                R.id.edit_text_binary -> convertToDecimal(number, 2)
-                R.id.edit_text_octal -> convertToDecimal(number, 8)
-                else -> convertToDecimal(number, 16)
+                R.id.edit_text_decimal -> convertToDecimal(number, DECIMAL)
+                R.id.edit_text_binary -> convertToDecimal(number, BINARY)
+                R.id.edit_text_octal -> convertToDecimal(number, OCTAL)
+                else -> convertToDecimal(number, HEXADECIMAL)
             }
 
-            editTextDecimal.takeIf { it.id != view.id }?.setText(convertFromDecimal(value, 10))
-            editTextBinary.takeIf { it.id != view.id }?.setText(convertFromDecimal(value, 2))
-            editTextOctal.takeIf { it.id != view.id }?.setText(convertFromDecimal(value, 8))
-            editTextHex.takeIf { it.id != view.id }?.setText(convertFromDecimal(value, 16))
+            editTextDecimal.takeIf { it.id != view.id }?.setText(convertFromDecimal(value, DECIMAL))
+            editTextBinary.takeIf { it.id != view.id }?.setText(convertFromDecimal(value, BINARY))
+            editTextOctal.takeIf { it.id != view.id }?.setText(convertFromDecimal(value, OCTAL))
+            editTextHex.takeIf { it.id != view.id }?.setText(convertFromDecimal(value, HEXADECIMAL))
 
         } catch (e: NumberFormatException) {
             Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
@@ -125,5 +125,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    companion object {
+        private const val DECIMAL = 10
+        private const val BINARY = 2
+        private const val OCTAL = 8
+        private const val HEXADECIMAL = 16
     }
 }

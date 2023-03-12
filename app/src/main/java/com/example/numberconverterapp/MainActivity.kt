@@ -17,8 +17,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var editTextOctal: EditText
     private lateinit var editTextHex: EditText
     private lateinit var buttonClear: Button
-    private var focusedView: EditText? = null
-    private var textWatcher: TextWatcher? = null
+    private var focusedEditText: EditText? = null
+    private lateinit var textWatcher: TextWatcher
+    private lateinit var myFocusChangeListener: View.OnFocusChangeListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +27,6 @@ class MainActivity : AppCompatActivity() {
 
         initViews()
         addCallBacks()
-        initListeners()
 
     }
 
@@ -38,14 +38,6 @@ class MainActivity : AppCompatActivity() {
         buttonClear = findViewById(R.id.button_clear)
     }
 
-    private fun initListeners() {
-        editTextDecimal.onFocusChangeListener = CustomFocusChangeListener()
-        editTextBinary.onFocusChangeListener = CustomFocusChangeListener()
-        editTextOctal.onFocusChangeListener = CustomFocusChangeListener()
-        editTextHex.onFocusChangeListener = CustomFocusChangeListener()
-    }
-
-
     private fun addCallBacks() {
 
         textWatcher = object : TextWatcher {
@@ -56,7 +48,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 val number = s.toString().trim()
-                focusedView?.let { convertNumberBases(it, number) }
+                focusedEditText?.let { updateEditTextsValue(it.id, number) }
 
             }
 
@@ -67,36 +59,56 @@ class MainActivity : AppCompatActivity() {
 
         }
 
+        editTextDecimal.onFocusChangeListener = myFocusChangeListener
+        editTextBinary.onFocusChangeListener = myFocusChangeListener
+        editTextOctal.onFocusChangeListener = myFocusChangeListener
+        editTextHex.onFocusChangeListener = myFocusChangeListener
+
+        myFocusChangeListener = object : View.OnFocusChangeListener {
+            override fun onFocusChange(view: View?, hasFocus: Boolean) {
+                if (hasFocus) {
+                    focusedEditText = view as EditText
+                    focusedEditText!!.addTextChangedListener(textWatcher)
+                } else {
+                    focusedEditText!!.removeTextChangedListener(textWatcher)
+                }
+            }
+
+        }
+
         buttonClear.setOnClickListener {
             clearFields()
         }
 
     }
 
-    private fun convertToDecimal(number: String, base: Int): String {
+    private fun convertToDecimal(number: String, sourceBase: Int): String {
         if (number.isEmpty()) {
             return ""
         }
-        return number.toIntOrNull(base)?.toString() ?: ""
+        return number.toIntOrNull(sourceBase)?.toString() ?: ""
     }
 
-    private fun convertFromDecimal(number: String, base: Int): String {
-        return number.toInt().toString(base)
+    private fun convertFromDecimal(number: String, targetBase: Int): String {
+        return number.toInt().toString(targetBase)
     }
 
-    private fun convertNumberBases(view: EditText, number: String) {
+    private fun updateEditTextsValue(editTextId: Int, number: String) {
         try {
-            val value = when (view.id) {
+            val value = when (editTextId) {
                 R.id.edit_text_decimal -> convertToDecimal(number, DECIMAL)
                 R.id.edit_text_binary -> convertToDecimal(number, BINARY)
                 R.id.edit_text_octal -> convertToDecimal(number, OCTAL)
                 else -> convertToDecimal(number, HEXADECIMAL)
             }
 
-            editTextDecimal.takeIf { it.id != view.id }?.setText(convertFromDecimal(value, DECIMAL))
-            editTextBinary.takeIf { it.id != view.id }?.setText(convertFromDecimal(value, BINARY))
-            editTextOctal.takeIf { it.id != view.id }?.setText(convertFromDecimal(value, OCTAL))
-            editTextHex.takeIf { it.id != view.id }?.setText(convertFromDecimal(value, HEXADECIMAL))
+            editTextDecimal.takeIf { it.id != editTextId }
+                ?.setText(convertFromDecimal(value, DECIMAL))
+            editTextBinary.takeIf { it.id != editTextId }
+                ?.setText(convertFromDecimal(value, BINARY))
+            editTextOctal.takeIf { it.id != editTextId }?.setText(convertFromDecimal(value, OCTAL))
+            editTextHex.takeIf { it.id != editTextId }
+                ?.setText(convertFromDecimal(value, HEXADECIMAL))
 
         } catch (e: NumberFormatException) {
             Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
@@ -114,18 +126,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    inner class CustomFocusChangeListener : View.OnFocusChangeListener {
-        override fun onFocusChange(view: View?, hasFocus: Boolean) {
-
-            if (hasFocus) {
-                focusedView = view as EditText
-                focusedView!!.addTextChangedListener(textWatcher)
-            } else {
-                focusedView!!.removeTextChangedListener(textWatcher)
-            }
-        }
-
-    }
 
     companion object {
         private const val DECIMAL = 10
